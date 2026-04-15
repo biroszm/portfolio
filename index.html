@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Márton | Portfolio</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      line-height: 1.6;
+    }
+    a { color: inherit; text-decoration: none; }
+    .container {
+      width: min(1100px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+    .hero {
+      padding: 72px 0 36px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      background: linear-gradient(180deg, #111827 0%, #0f172a 100%);
+    }
+    h1 {
+      margin: 0;
+      color: white;
+      font-size: clamp(40px, 8vw, 72px);
+      line-height: 1.02;
+    }
+    .bio {
+      max-width: 760px;
+      margin-top: 18px;
+      font-size: 20px;
+      color: #cbd5e1;
+    }
+    .section-title {
+      margin: 0 0 18px;
+      font-size: 28px;
+      color: white;
+    }
+    main {
+      padding: 40px 0 64px;
+    }
+    .message {
+      display: none;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.25);
+      color: #fecdd3;
+    }
+    .message.show { display: block; }
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .project-card {
+      overflow: hidden;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.18);
+    }
+    .project-gallery {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 8px;
+      background: #111827;
+    }
+    .project-gallery.has-multiple {
+      grid-template-columns: 1fr 1fr;
+    }
+    .project-image {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      display: block;
+      background: #111827;
+      border-radius: 16px;
+    }
+    .image-fallback {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      color: #94a3b8;
+      font-size: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .project-content {
+      padding: 18px;
+    }
+    .project-title {
+      margin: 0;
+      font-size: 22px;
+      color: white;
+    }
+    .project-desc {
+      margin: 10px 0 14px;
+      color: #cbd5e1;
+      min-height: 72px;
+    }
+    .project-meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: #94a3b8;
+      font-size: 14px;
+    }
+    .project-link {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      background: white;
+      color: #111827;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(2, 6, 23, 0.82);
+      z-index: 1000;
+    }
+    .lightbox.show {
+      display: flex;
+    }
+    .lightbox-inner {
+      position: relative;
+      max-width: min(1100px, 96vw);
+      max-height: 92vh;
+    }
+    .lightbox-image {
+      display: block;
+      max-width: 100%;
+      max-height: 92vh;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+      background: #0b1220;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -14px;
+      right: -14px;
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 999px;
+      background: white;
+      color: #111827;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    .clickable-image {
+      cursor: zoom-in;
+    }
+    .loading {
+      color: #94a3b8;
+      font-size: 16px;
+    }
+    @media (max-width: 800px) {
+      .projects-grid { grid-template-columns: 1fr; }
+      .bio { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="container">
+      <h1>Márton</h1>
+      <p class="bio">
+        I am an inspired data scientist who loves solving problems in any field. My work combines statistics, machine learning, AI, and optimization theory to turn complex challenges into practical solutions.
+      </p>
+    </div>
+  </section>
+
+  <main>
+    <div class="container">
+      <div id="messageBox" class="message"></div>
+      <h2 class="section-title">GitHub Projects</h2>
+      <div id="projects" class="projects-grid"></div>
+      <p id="loadingText" class="loading">Loading projects from GitHub…</p>
+    </div>
+  </main>
+
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <div class="lightbox-inner">
+      <button id="lightboxClose" class="lightbox-close" aria-label="Close image">×</button>
+      <img id="lightboxImage" class="lightbox-image" alt="Enlarged project preview">
+    </div>
+  </div>
+
+  <script>
+    const GITHUB_USERNAME = 'biroszm';
+    const projectsEl = document.getElementById('projects');
+    const loadingText = document.getElementById('loadingText');
+    const messageBox = document.getElementById('messageBox');
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightboxImage');
+    const lightboxClose = document.getElementById('lightboxClose');
+
+    function showError(text) {
+      messageBox.textContent = text;
+      messageBox.classList.add('show');
+    }
+
+    function hideError() {
+      messageBox.textContent = '';
+      messageBox.classList.remove('show');
+    }
+
+    function escapeHtml(text) {
+      return String(text || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data from GitHub.');
+      }
+      return response.json();
+    }
+
+    function getRawImageUrl(repo, path) {
+      const branch = repo.default_branch || 'main';
+      return `https://raw.githubusercontent.com/${GITHUB_USERNAME}/${repo.name}/${branch}/${path}`;
+    }
+
+    function isPreviewImage(name) {
+      const lower = String(name || '').toLowerCase();
+      const validExt = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+      const hasValidExt = validExt.some(ext => lower.endsWith(ext));
+      if (!hasValidExt) return false;
+      return lower.startsWith('preview') || lower.startsWith('cover') || lower.startsWith('screenshot');
+    }
+
+    async function getPreviewImages(repo) {
+      const contents = await fetchJson(`https://api.github.com/repos/${GITHUB_USERNAME}/${repo.name}/contents`);
+      const files = Array.isArray(contents) ? contents : [];
+
+      const matches = files
+        .filter(item => item.type === 'file' && isPreviewImage(item.name))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
+
+      return matches.map(item => getRawImageUrl(repo, item.path));
+    }
+
+    function createProjectCard(repo, imageUrls) {
+      const galleryClass = imageUrls.length > 1 ? 'project-gallery has-multiple' : 'project-gallery';
+      const galleryHtml = imageUrls.length
+        ? imageUrls.map(url => `<img class="project-image clickable-image" src="${url}" alt="${escapeHtml(repo.name)} preview" loading="lazy">`).join('')
+        : '<div class="image-fallback">No preview image found</div>';
+
+      return `
+        <article class="project-card">
+          <div class="${galleryClass}">
+            ${galleryHtml}
+          </div>
+          <div class="project-content">
+            <h3 class="project-title">${escapeHtml(repo.name)}</h3>
+            <p class="project-desc">${escapeHtml(repo.description || 'No description provided.')}</p>
+            <a class="project-link" href="${repo.html_url}" target="_blank" rel="noreferrer">View on GitHub</a>
+          </div>
+        </article>
+      `;
+    }
+
+    async function loadProjects() {
+      try {
+        hideError();
+        const repos = await fetchJson(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`);
+        const publicRepos = repos
+          .filter(repo => !repo.fork)
+          .filter(repo => repo.name.toLowerCase() !== 'portfolio')
+          .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+
+        if (!publicRepos.length) {
+          loadingText.textContent = 'No public repositories found.';
+          return;
+        }
+
+        const cards = await Promise.all(
+          publicRepos.map(async repo => {
+            try {
+              const imageUrls = await getPreviewImages(repo);
+              return createProjectCard(repo, imageUrls);
+            } catch (error) {
+              return createProjectCard(repo, []);
+            }
+          })
+        );
+
+        projectsEl.innerHTML = cards.join('');
+        loadingText.style.display = 'none';
+      } catch (error) {
+        loadingText.style.display = 'none';
+        showError('Could not load your GitHub projects right now.');
+      }
+    }
+
+    function openLightbox(src, alt) {
+      lightboxImage.src = src;
+      lightboxImage.alt = alt || 'Enlarged project preview';
+      lightbox.classList.add('show');
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove('show');
+      lightbox.setAttribute('aria-hidden', 'true');
+      lightboxImage.src = '';
+      document.body.style.overflow = '';
+    }
+
+    projectsEl.addEventListener('click', (event) => {
+      const img = event.target.closest('.clickable-image');
+      if (!img) return;
+      openLightbox(img.src, img.alt);
+    });
+
+    lightboxClose.addEventListener('click', closeLightbox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeLightbox();
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && lightbox.classList.contains('show')) {
+        closeLightbox();
+      }
+    });
+
+    loadProjects();
+  </script>
+</body>
+</html>
